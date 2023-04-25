@@ -3,7 +3,7 @@ import ui
 import scriptHandler
 import addonHandler
 import speech
-import winsound
+import nvwave
 import os
 import gui
 import config
@@ -36,8 +36,14 @@ class TranslationSettingsPanel(gui.SettingsPanel):
         language_code_list = [k for k in get_language_list().keys()]
         self.sourceLanguageChoice.Select(language_code_list.index(config.conf["baiduTranslation"]["from"]))
         self.targetLanguageChoice.Select(language_code_list.index(config.conf["baiduTranslation"]["to"]))
+        self.autoFromLangOption = helper.addItem(
+            # Translators: the label for the Auto from language checkbox
+            wx.CheckBox(self, label=_("Automatically identify the source language"))
+        )
+        self.autoFromLangOption.SetValue(config.conf["baiduTranslation"]["autoFromLang"])
 
     def onSave(self):
+        config.conf["baiduTranslation"]["autoFromLang"] = self.autoFromLangOption.IsChecked()
         config.conf["baiduTranslation"]["from"] = [
             key for key in get_language_list().keys()
             ][
@@ -59,7 +65,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         super(globalPluginHandler.GlobalPlugin, self).__init__()
         confspec = {
             "from": "string(default='en')",
-            "to": "string(default='zh')"
+            "to": "string(default='zh')",
+            "autoFromLang": "boolean(default=True)"
         }
         config.conf.spec["baiduTranslation"] = confspec
         gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(TranslationSettingsPanel)
@@ -75,14 +82,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(TranslationSettingsPanel)
         speech.speech.speak = self._speakself._speak = None
 
-    # Translators: Translate what you just heard
     @scriptHandler.script(
         category=CATEGORY_NAME,
+        # Translators: Translate what you just heard
         description=_("Translate what you just heard"),
         gesture="kb:NVDA+A")
     def script_translate(self, gesture):
         self._playSound()
-        from_language = config.conf["baiduTranslation"]["from"]
+        if config.conf["baiduTranslation"]["autoFromLang"]:
+            from_language = "auto"
+        else:
+            from_language = config.conf["baiduTranslation"]["from"]
         to_language = config.conf["baiduTranslation"]["to"]
         self._translator.translate(from_language, to_language, self._data, self._onResult)
 
@@ -116,4 +126,4 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         else:
             filename = "translate.wav"
         sound_filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sound", filename))
-        winsound.PlaySound(sound_filename, winsound.SND_FILENAME | winsound.SND_ASYNC)
+        nvwave.playWaveFile(sound_filename)
