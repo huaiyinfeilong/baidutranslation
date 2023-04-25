@@ -73,7 +73,6 @@ class TranslationSettingsPanel(gui.SettingsPanel):
         ]
         config.conf["baiduTranslation"]["autoTrans"] = self.automaticTranslationChoice.GetSelection()
 
-
 # Translators: Category Name
 CATEGORY_NAME = _("Baidu Translation")
 
