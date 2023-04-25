@@ -1,5 +1,4 @@
 import globalPluginHandler
-import ui
 import scriptHandler
 import addonHandler
 import speech
@@ -41,6 +40,23 @@ class TranslationSettingsPanel(gui.SettingsPanel):
             wx.CheckBox(self, label=_("Automatically identify the source language"))
         )
         self.autoFromLangOption.SetValue(config.conf["baiduTranslation"]["autoFromLang"])
+        # Automatic translation combobox
+        self._automatic_translation_list = [
+            # Translators: option disabled
+            _("Disabled"),
+            # Translations: option normal
+            _("Normal"),
+            # Translators: option reverse
+            _("Reverse")
+        ]
+        # Translators: the label for of the automatic translation combobox
+        label_for_automatic_translation_choice = _("Automatic translation")
+        self.automaticTranslationChoice = helper.addLabeledControl(
+            label_for_automatic_translation_choice,
+            wx.Choice,
+            choices=self._automatic_translation_list
+        )
+        self.automaticTranslationChoice.Select(config.conf["baiduTranslation"]["autoTrans"])
 
     def onSave(self):
         config.conf["baiduTranslation"]["autoFromLang"] = self.autoFromLangOption.IsChecked()
@@ -54,7 +70,7 @@ class TranslationSettingsPanel(gui.SettingsPanel):
             ][
         self.targetLanguageChoice.GetSelection()
         ]
-
+        config.conf["baiduTranslation"]["autoTrans"] = self.automaticTranslationChoice.GetSelection()
 
 # Translators: Category Name
 CATEGORY_NAME = _("Baidu Translation")
@@ -66,7 +82,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         confspec = {
             "from": "string(default='en')",
             "to": "string(default='zh')",
-            "autoFromLang": "boolean(default=True)"
+            "autoFromLang": "boolean(default=True)",
+            "autoTrans": "integer(default=0)"
         }
         config.conf.spec["baiduTranslation"] = confspec
         gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(TranslationSettingsPanel)
@@ -107,17 +124,46 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         to_language = config.conf["baiduTranslation"]["to"]
         self._translator.translate(to_language, from_language, self._data, self._onResult)
 
+    # Translators: Switch automatic translation mode
+    @scriptHandler.script(
+        category=CATEGORY_NAME,
+        description=_("Switch automatic translation mode"),
+        gesture="kb:NVDA+F7")
+    def script_switchAutomaticTranslationMode(self, gesture):
+        option_name = [
+            # Translators: Automatic translation mode set to disabled
+            _("Automatic translation mode set to disabled"),
+            # Translators: Automatic translation mode set to normal
+            _("Automatic translation mode set to normal"),
+            # Translators: Automatic translation mode set to reverse
+            _("Automatic translation mode set to reverse")
+        ]
+        option_count = len(option_name)
+        mode = option_name[(config.conf["baiduTranslation"]["autoTrans"] + option_count + 1) % option_count]
+        self._speak([mode])
+        config.conf["baiduTranslation"]["autoTrans"] = option_name.index(mode)
+
     def _onResult(self, data):
         if data is not None:
-            ui.message(data)
+            self._speak([data])
 
     def speak(self, sequence, *args, **kwargs):
         self._data = ""
         if isinstance(sequence, str):
             self._data = sequence
         elif isinstance(sequence, list):
-            self._data = " ".join([item for item in sequence if isinstance(item, str)])
-        self._speak(sequence, *args, **kwargs)
+            self._data = "".join([item for item in sequence if isinstance(item, str)])
+        if config.conf["baiduTranslation"]["autoTrans"] != 0 and self._data:
+            if config.conf["baiduTranslation"]["autoTrans"] == 1:
+                from_language = "auto" if config.conf["baiduTranslation"]["autoFromLang"] else \
+                config.conf["baiduTranslation"]["from"]
+                to_language = config.conf["baiduTranslation"]["to"]
+            else:
+                from_language = config.conf["baiduTranslation"]["to"]
+                to_language = config.conf["baiduTranslation"]["from"]
+            self._translator.translate(from_language, to_language, self._data, self._onResult)
+        else:
+            self._speak(sequence, *args, **kwargs)
 
     def _playSound(self, reverse_translate=False):
         filename = ""
