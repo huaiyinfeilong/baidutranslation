@@ -29,17 +29,17 @@ msgid "Baidu Translation"
 msgstr "百度翻译"
 
 #. Translators: Source language in the settings panel
-#: addon\globalPlugins\baiduTranslation\__init__.py:25
+#: addon\globalPlugins\baiduTranslation\__init__.py:24
 msgid "Source language"
 msgstr "源语言"
 
 #. Translators: Target language in the settings panel
-#: addon\globalPlugins\baiduTranslation\__init__.py:27
+#: addon\globalPlugins\baiduTranslation\__init__.py:26
 msgid "Target language"
 msgstr "目标语言"
 
 #. Translators: the label for the Auto from language checkbox
-#: addon\globalPlugins\baiduTranslation\__init__.py:41
+#: addon\globalPlugins\baiduTranslation\__init__.py:40
 msgid "Automatically identify the source language"
 msgstr "自动识别源语言"
 
