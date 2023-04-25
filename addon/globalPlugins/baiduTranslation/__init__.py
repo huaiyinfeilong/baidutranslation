@@ -3,7 +3,7 @@ import ui
 import scriptHandler
 import addonHandler
 import speech
-import winsound
+import nvwave
 import os
 import gui
 import config
@@ -126,4 +126,4 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         else:
             filename = "translate.wav"
         sound_filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sound", filename))
-        winsound.PlaySound(sound_filename, winsound.SND_FILENAME | winsound.SND_ASYNC)
+        nvwave.playWaveFile(sound_filename)
