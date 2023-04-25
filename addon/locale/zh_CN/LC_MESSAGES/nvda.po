@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'baiduTranslation' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2023-04-25 11:54+0800\n"
-"PO-Revision-Date: 2023-04-25 11:58+0800\n"
+"POT-Creation-Date: 2023-04-25 16:00+0800\n"
+"PO-Revision-Date: 2023-04-25 16:03+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -23,34 +23,73 @@ msgstr ""
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
 #. to be shown on installation and add-on information found in Add-ons Manager.
-#: addon\globalPlugins\baiduTranslation\__init__.py:19
-#: addon\globalPlugins\baiduTranslation\__init__.py:60 buildVars.py:23
+#: addon\globalPlugins\baiduTranslation\__init__.py:18
+#: addon\globalPlugins\baiduTranslation\__init__.py:76 buildVars.py:23
 msgid "Baidu Translation"
 msgstr "百度翻译"
 
 #. Translators: Source language in the settings panel
-#: addon\globalPlugins\baiduTranslation\__init__.py:25
+#: addon\globalPlugins\baiduTranslation\__init__.py:24
 msgid "Source language"
 msgstr "源语言"
 
 #. Translators: Target language in the settings panel
-#: addon\globalPlugins\baiduTranslation\__init__.py:27
+#: addon\globalPlugins\baiduTranslation\__init__.py:26
 msgid "Target language"
 msgstr "目标语言"
 
 #. Translators: the label for the Auto from language checkbox
-#: addon\globalPlugins\baiduTranslation\__init__.py:41
+#: addon\globalPlugins\baiduTranslation\__init__.py:40
 msgid "Automatically identify the source language"
 msgstr "自动识别源语言"
 
+#. Translators: option disabled
+#: addon\globalPlugins\baiduTranslation\__init__.py:46
+msgid "Disabled"
+msgstr "禁用"
+
+#. Translations: option normal
+#: addon\globalPlugins\baiduTranslation\__init__.py:48
+msgid "Normal"
+msgstr "常规"
+
+#. Translators: option reverse
+#: addon\globalPlugins\baiduTranslation\__init__.py:50
+msgid "Reverse"
+msgstr "反向"
+
+#. Translators: the label for of the automatic translation combobox
+#: addon\globalPlugins\baiduTranslation\__init__.py:53
+msgid "Automatic translation"
+msgstr "自动翻译"
+
 #. Translators: Translate what you just heard
-#: addon\globalPlugins\baiduTranslation\__init__.py:88
+#: addon\globalPlugins\baiduTranslation\__init__.py:105
 msgid "Translate what you just heard"
 msgstr "翻译听到的内容"
 
-#: addon\globalPlugins\baiduTranslation\__init__.py:102
+#: addon\globalPlugins\baiduTranslation\__init__.py:119
 msgid "Reverse translate what you just heard"
 msgstr "反向翻译听到的内容"
+
+#: addon\globalPlugins\baiduTranslation\__init__.py:130
+msgid "Switch automatic translation mode"
+msgstr "切换自动翻译模式"
+
+#. Translators: Automatic translation mode set to disabled
+#: addon\globalPlugins\baiduTranslation\__init__.py:135
+msgid "Automatic translation mode set to disabled"
+msgstr "自动翻译模式设置为禁用"
+
+#. Translators: Automatic translation mode set to normal
+#: addon\globalPlugins\baiduTranslation\__init__.py:137
+msgid "Automatic translation mode set to normal"
+msgstr "自动翻译模式设置为常规"
+
+#. Translators: Automatic translation mode set to reverse
+#: addon\globalPlugins\baiduTranslation\__init__.py:139
+msgid "Automatic translation mode set to reverse"
+msgstr "自动翻译模式设置为反向"
 
 #. Translators: Language: en
 #: addon\globalPlugins\baiduTranslation\languages.py:3
