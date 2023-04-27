@@ -10,6 +10,15 @@
 * 正向翻译剪贴板中的内容：NVDA+CONTROL+W
 * 反向翻译剪贴板中的内容：NVDA+CONTROL+SHIFT+W
 
+## 反馈联络
+
+有任何意见建议欢迎沟通：
+
+* 项目地址：https://github.com/huaiyinfeilong/baiduTranslation
+* 电子邮箱：huaiyinfeilong@163.com
+* QQ：354522977
+* 微信：huaiyinfeilong
+
 ## 升级日志
 
 ### Version 1.2
