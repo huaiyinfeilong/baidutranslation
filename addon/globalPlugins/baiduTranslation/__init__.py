@@ -1,3 +1,4 @@
+import api
 import globalPluginHandler
 import scriptHandler
 import addonHandler
@@ -72,6 +73,7 @@ class TranslationSettingsPanel(gui.SettingsPanel):
         ]
         config.conf["baiduTranslation"]["autoTrans"] = self.automaticTranslationChoice.GetSelection()
 
+
 # Translators: Category Name
 CATEGORY_NAME = _("Baidu Translation")
 
@@ -103,7 +105,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         category=CATEGORY_NAME,
         # Translators: Translate what you just heard
         description=_("Translate what you just heard"),
-        gesture="kb:NVDA+A")
+        gesture="kb:NVDA+W")
     def script_translate(self, gesture):
         self._playSound()
         if config.conf["baiduTranslation"]["autoFromLang"]:
@@ -117,18 +119,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     @scriptHandler.script(
         category=CATEGORY_NAME,
         description=_("Reverse translate what you just heard"),
-        gesture="kb:NVDA+SHIFT+A")
+        gesture="kb:NVDA+SHIFT+W")
     def script_reverseTranslate(self, gesture):
         self._playSound(True)
         from_language = config.conf["baiduTranslation"]["from"]
         to_language = config.conf["baiduTranslation"]["to"]
         self._translator.translate(to_language, from_language, self._data, self._onResult)
 
-    # Translators: Switch automatic translation mode
     @scriptHandler.script(
         category=CATEGORY_NAME,
+        # Translators: Switch automatic translation mode
         description=_("Switch automatic translation mode"),
-        gesture="kb:NVDA+F7")
+        gesture="kb:NVDA+F8")
     def script_switchAutomaticTranslationMode(self, gesture):
         option_name = [
             # Translators: Automatic translation mode set to disabled
@@ -142,6 +144,37 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         mode = option_name[(config.conf["baiduTranslation"]["autoTrans"] + option_count + 1) % option_count]
         self._speak([mode])
         config.conf["baiduTranslation"]["autoTrans"] = option_name.index(mode)
+
+    @scriptHandler.script(
+        category=CATEGORY_NAME,
+        # Translators: Translate the content in the clipboard
+        description=_("Translate the content in the clipboard"),
+        gesture="kb:NVDA+CONTROL+W")
+    def script_clipboardTranslation(self, gesture):
+        self.clipboard_translation()
+
+
+    @scriptHandler.script(
+        category=CATEGORY_NAME,
+        # Translators: Reverse translate the content in the clipboard
+        description=_("Reverse translate the content in the clipboard"),
+        gesture="kb:NVDA+CONTROL+SHIFT+W")
+    def script_clipboardReverseTranslation(self, gesture):
+        self.clipboard_translation(True)
+
+    def clipboard_translation(self, reverse=False):
+        text = api.getClipData()
+        if not text:
+            return
+        self._playSound(reverse)
+        from_language = "auto" if config.conf["baiduTranslation"]["autoFromLang"] \
+        else config.conf["baiduTranslation"]["from"]
+        to_language = config.conf["baiduTranslation"]["to"]
+        if reverse:
+            temp = from_language
+            from_language = to_language
+            to_language = temp
+        self._translator.translate(from_language, to_language, text, self._onResult)
 
     def _onResult(self, data):
         if data is not None:
