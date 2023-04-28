@@ -95,10 +95,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._speak = speech.speech.speak
         speech.speech.speak = self.speak
 
+    def __del__(self):
+        speech.speech.speak = self._speak
+        self._speak = None
+
     def terminate(self):
-        super(globalPluginHandler.GlobalPlugin, self).terminate()
         gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(TranslationSettingsPanel)
-        speech.speech.speak = self._speakself._speak = None
 
     @scriptHandler.script(
         category=CATEGORY_NAME,
