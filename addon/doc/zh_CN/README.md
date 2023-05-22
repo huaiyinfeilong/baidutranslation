@@ -21,6 +21,11 @@
 
 ## 升级日志
 
+### Version 1.3
+
+* 设置中增加“使用共享密钥”开关，可选择使用共享密钥货自己的私有密钥。个人私有密钥申请地址：
+[https://api.fanyi.baidu.com/product/11](https://api.fanyi.baidu.com/product/11)
+
 ### Version 1.2
 
 * 新增剪贴板正向翻译和剪贴板反向翻译功能。

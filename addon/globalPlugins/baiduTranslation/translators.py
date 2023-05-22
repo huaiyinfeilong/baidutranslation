@@ -1,8 +1,15 @@
+# coding=utf-8
+
+from logHandler import log
 import threading
 import urllib.request
 import json
 import time
 import hashlib
+import addonHandler
+
+# 初始化翻译引擎
+addonHandler.initTranslation()
 
 
 class BaiduTranslator(object):
@@ -63,8 +70,21 @@ class BaiduTranslator(object):
 		response = opener.open(request)
 		data = json.loads(response.read().decode("utf-8"))
 		if data.get("error_code"):
+			errorCode = int(data.get("error_code"))
+			message = ""
+			# 错误码=54004，错误信息：余额不足
+			if errorCode == 54004:
+				# Translators: Insufficient balance
+				message = _("Insufficient balance")
+			# 错误码=52003，错误信息：无效的应用密钥
+			elif errorCode == 52003:
+				# Translators: Invalid application key
+				message = _("Invalid application key")
+			else:
+				message = data.get("error_msg")
 			# Translators: Translation failed message
-			result = _("Translation failed:") + data.get("error_msg")
+			failedMessage = _("Translation failed: ")
+			result = f"{_(failedMessage)}{_(message)}"
 		else:
 			result = "\n".join([r.get("dst") for r in data.get("trans_result")])
 		self._on_result(result)

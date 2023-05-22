@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import api
 import globalPluginHandler
 import scriptHandler
@@ -12,6 +14,8 @@ from .translators import BaiduTranslator
 from .languages import get_language_list
 
 addonHandler.initTranslation()
+
+_translator = BaiduTranslator()
 
 
 class TranslationSettingsPanel(gui.SettingsPanel):
@@ -58,6 +62,26 @@ class TranslationSettingsPanel(gui.SettingsPanel):
 			choices=self._automatic_translation_list
 		)
 		self.automaticTranslationChoice.Select(config.conf["baiduTranslation"]["autoTrans"])
+		# Translators: The label for using share key checkbox
+		using_share_key_label = _("Using share key")
+		self.usingShareKeyCheckBox = helper.addItem(
+			wx.CheckBox(self, label=_(using_share_key_label))
+		)
+		self.usingShareKeyCheckBox.SetValue(config.conf["baiduTranslation"]["usingShareKey"])
+		# Translators: The label for my APP ID textbox
+		my_app_id_label = _("My APP ID")
+		self.myAppIdTextCtrl = helper.addLabeledControl(
+			_(my_app_id_label),
+			wx.TextCtrl,
+		)
+		self.myAppIdTextCtrl.SetValue(config.conf["baiduTranslation"]["myAppId"])
+		# Translators: The label for my APP secret textbox
+		my_app_secret_label = _("My APP secret")
+		self.myAppSecretTextCtrl = helper.addLabeledControl(
+			_(my_app_secret_label),
+			wx.TextCtrl,
+		)
+		self.myAppSecretTextCtrl.SetValue(config.conf["baiduTranslation"]["myAppSecret"])
 
 	def onSave(self):
 		config.conf["baiduTranslation"]["autoFromLang"] = self.autoFromLangOption.IsChecked()
@@ -72,6 +96,17 @@ class TranslationSettingsPanel(gui.SettingsPanel):
 		self.targetLanguageChoice.GetSelection()
 		]
 		config.conf["baiduTranslation"]["autoTrans"] = self.automaticTranslationChoice.GetSelection()
+		# 判断使用共享密钥配置是否发生变化
+		flag = config.conf["baiduTranslation"]["usingShareKey"] == self.usingShareKeyCheckBox.IsChecked()
+		config.conf["baiduTranslation"]["usingShareKey"] = self.usingShareKeyCheckBox.IsChecked()
+		config.conf["baiduTranslation"]["myAppId"] = self.myAppIdTextCtrl.GetValue()
+		config.conf["baiduTranslation"]["myAppSecret"] = self.myAppSecretTextCtrl.GetValue()
+		if flag is False:
+			appId = config.conf["baiduTranslation"]["shareAppId"] \
+			if config.conf["baiduTranslation"]["usingShareKey"] else config.conf["baiduTranslation"]["myAppId"]
+			appSecret = config.conf["baiduTranslation"]["shareAppSecret"] \
+			if config.conf["baiduTranslation"]["usingShareKey"] else config.conf["baiduTranslation"]["myAppSecret"]
+			_translator.initialize_translator(appId, appSecret)
 
 
 # Translators: Category Name
@@ -85,14 +120,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			"from": "string(default='en')",
 			"to": "string(default='zh')",
 			"autoFromLang": "boolean(default=True)",
-			"autoTrans": "integer(default=0)"
+			"autoTrans": "integer(default=0)",
+			"usingShareKey": "boolean(default=True)",
+			"shareAppId": "string(default='20230423001653246')",
+			"shareAppSecret": "string(default='dyh8lxcVEZnBhJ8EiEwD')",
+			"myAppId": "string(default='')",
+			"myAppSecret": "string(default='')"
 		}
 		config.conf.spec["baiduTranslation"] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(TranslationSettingsPanel)
-		appid = "20230423001653246"
-		appsecret = "dyh8lxcVEZnBhJ8EiEwD"
-		self._translator = BaiduTranslator()
-		self._translator.initialize_translator(appid, appsecret)
+		appId = config.conf["baiduTranslation"]["shareAppId"] \
+		if config.conf["baiduTranslation"]["usingShareKey"] else config.conf["baiduTranslation"]["myAppId"]
+		appSecret = config.conf["baiduTranslation"]["shareAppSecret"] \
+		if config.conf["baiduTranslation"]["usingShareKey"] else config.conf["baiduTranslation"]["myAppSecret"]
+		_translator.initialize_translator(appId, appSecret)
 		self._speak = speech.speech.speak
 		speech.speech.speak = self.speak
 
@@ -115,7 +156,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		else:
 			from_language = config.conf["baiduTranslation"]["from"]
 		to_language = config.conf["baiduTranslation"]["to"]
-		self._translator.translate(from_language, to_language, self._data, self._onResult)
+		_translator.translate(from_language, to_language, self._data, self._onResult)
 
 	# Translators: Reverse translate what you just heard
 	@scriptHandler.script(
@@ -126,7 +167,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._playSound(True)
 		from_language = config.conf["baiduTranslation"]["from"]
 		to_language = config.conf["baiduTranslation"]["to"]
-		self._translator.translate(to_language, from_language, self._data, self._onResult)
+		_translator.translate(to_language, from_language, self._data, self._onResult)
 
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
@@ -155,7 +196,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_clipboardTranslation(self, gesture):
 		self.clipboard_translation()
 
-
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
 		# Translators: Reverse translate the content in the clipboard
@@ -176,7 +216,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			temp = from_language
 			from_language = to_language
 			to_language = temp
-		self._translator.translate(from_language, to_language, text, self._onResult)
+		_translator.translate(from_language, to_language, text, self._onResult)
 
 	def _onResult(self, data):
 		if data is not None:
@@ -196,7 +236,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			else:
 				from_language = config.conf["baiduTranslation"]["to"]
 				to_language = config.conf["baiduTranslation"]["from"]
-			self._translator.translate(from_language, to_language, self._data, self._onResult)
+			_translator.translate(from_language, to_language, self._data, self._onResult)
 		else:
 			self._speak(sequence, *args, **kwargs)
 

@@ -12,6 +12,12 @@ An NVDA add-on that provides baidu translation.
 
 ## Upgrade Log
 
+### Version 1.3
+
+* Added "Use shared key" switch in settings, you can choose to use shared key or your own private key. Personal private key application address:
+[https://api.fanyi.baidu.com/product/11](https://api.fanyi.baidu.com/product/11)
+
+
 ### Version 1.2
 
 * Added clipboard forward translation and clipboard reverse translation functions.
