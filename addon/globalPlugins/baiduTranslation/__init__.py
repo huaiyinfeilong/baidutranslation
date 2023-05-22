@@ -135,11 +135,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_switchAutomaticTranslationMode(self, gesture):
 		option_name = [
 			# Translators: Automatic translation mode set to disabled
+<<<<<<< HEAD
 			_("Automatic translation mode set to disabled"),
 			# Translators: Automatic translation mode set to normal
 			_("Automatic translation mode set to normal"),
 			# Translators: Automatic translation mode set to reverse
 			_("Automatic translation mode set to reverse")
+=======
+			_("Disable automatic translation"),
+			# Translators: Automatic translation mode set to normal
+			_("Normal automatic translation"),
+			# Translators: Automatic translation mode set to reverse
+			_("Reverse automatic translation")
+>>>>>>> 89294c49fbb0f562fa3a76e8d85b47e21027efa5
 		]
 		option_count = len(option_name)
 		mode = option_name[(config.conf["baiduTranslation"]["autoTrans"] + option_count + 1) % option_count]
