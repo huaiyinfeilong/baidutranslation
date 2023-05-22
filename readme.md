@@ -21,6 +21,12 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 1.5
+
+* Added "Use shared key" switch in settings, you can choose to use shared key or your own private key. Personal private key application address:
+[https://api.fanyi.baidu.com/product/11](https://api.fanyi.baidu.com/product/11)
+* Improve localization support for error reporting information.
+
 ### Version 1.4
 
 * Improve the help documentation and fix errors in the English help documentation.
@@ -44,6 +50,7 @@ After the automatic translation function is turned on, all content read by NVDA 
 * Disable auto-translation: Do not use the auto-translation feature.
 
 Note: After the automatic translation function is turned on, all the reading content of NVDA will be sent to the translation server, and the response speed of NVDA reading will be slowed down to varying degrees due to the translation results.
+
 ### Version 1.1
 
 Added reverse translation function, which can translate from the target language to the source language.
