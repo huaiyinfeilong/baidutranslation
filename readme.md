@@ -38,6 +38,12 @@ Added clipboard forward translation and clipboard reverse translation functions.
 * Forward translation of the clipboard: Translate the contents of the clipboard from the source language to the target language. If the "Automatically identify source language" option is enabled, the source language will be automatically recognized.
 * Clipboard reverse translation: Translate the contents of the clipboard from the target language to the source language.
 
+### Version 1.3
+
+* Added "Use shared key" switch in settings, you can choose to use shared key or your own private key. Personal private key application address:
+[https://api.fanyi.baidu.com/product/11](https://api.fanyi.baidu.com/product/11)
+
+
 ### Version 1.2
 
 Added the automatic translation function, which supports three modes of regular automatic translation, reverse automatic translation and disabled automatic translation.

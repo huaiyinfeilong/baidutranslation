@@ -1,8 +1,14 @@
+# coding=utf-8
+
 import threading
 import urllib.request
 import json
 import time
 import hashlib
+import addonHandler
+
+# 初始化翻译引擎
+addonHandler.initTranslation()
 
 
 class BaiduTranslator(object):
@@ -63,8 +69,36 @@ class BaiduTranslator(object):
 		response = opener.open(request)
 		data = json.loads(response.read().decode("utf-8"))
 		if data.get("error_code"):
+			errorCode = data.get("error_code")
+			message = ""
+			errorDescription = {
+				# Translators: Request timeout
+				"52001": _("Request timeout"),
+				# Translators: System error
+				"52002": _("System error"),
+				# Translators: Unauthorized user
+				"52003": _("Unauthorized user"),
+				# Translators: The required parameter is empty
+				"54000": _("The required parameter is empty"),
+				# Translators: Signature error
+				"54001": _("Signature error"),
+				# Translators: Access frequency limited
+				"54003": _("Access frequency limited"),
+				# Translators: Insufficient account balance
+				"54004": _("Insufficient account balance"),
+				# Translators: Long query requests are frequent
+				"54005": _("Long query requests are frequent"),
+				# Translators: Illegal client IP
+				"58000": _("Illegal client IP"),
+				# Translators: Translation language direction not supported
+				"58001": _("Translation language direction not supported")
+			}
+			message = errorDescription.get(errorCode)
+			if message is None:
+				message = f"{data.get('error_msg')}, error code={errorCode}"
 			# Translators: Translation failed message
-			result = _("Translation failed:") + data.get("error_msg")
+			failedMessage = _("Translation failed: ")
+			result = f"{_(failedMessage)}{_(message)}"
 		else:
 			result = "\n".join([r.get("dst") for r in data.get("trans_result")])
 		self._on_result(result)
