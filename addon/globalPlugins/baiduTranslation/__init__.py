@@ -67,6 +67,7 @@ class TranslationSettingsPanel(gui.SettingsPanel):
 		self.usingShareKeyCheckBox = helper.addItem(
 			wx.CheckBox(self, label=_(using_share_key_label))
 		)
+		self.usingShareKeyCheckBox.Bind(wx.EVT_CHECKBOX, self.onUsingShareKeyCheckBoxChange)
 		self.usingShareKeyCheckBox.SetValue(config.conf["baiduTranslation"]["usingShareKey"])
 		# Translators: The label for my APP ID textbox
 		my_app_id_label = _("My APP ID")
@@ -82,6 +83,15 @@ class TranslationSettingsPanel(gui.SettingsPanel):
 			wx.TextCtrl,
 		)
 		self.myAppSecretTextCtrl.SetValue(config.conf["baiduTranslation"]["myAppSecret"])
+		enabled = not self.usingShareKeyCheckBox.IsChecked()
+		self.myAppIdTextCtrl.Enable(enabled)
+		self.myAppSecretTextCtrl.Enable(enabled)
+
+
+	def onUsingShareKeyCheckBoxChange(self, event):
+		enabled = not self.usingShareKeyCheckBox.IsChecked()
+		self.myAppIdTextCtrl.Enable(enabled)
+		self.myAppSecretTextCtrl.Enable(enabled)
 
 	def onSave(self):
 		config.conf["baiduTranslation"]["autoFromLang"] = self.autoFromLangOption.IsChecked()
@@ -112,6 +122,10 @@ CATEGORY_NAME = _("Baidu Translation")
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self):
 		super(globalPluginHandler.GlobalPlugin, self).__init__()
+		# 翻译结果缓存，用以翻译结果拷贝，当拷贝成功后此缓存将被清空
+		self._translationResult = ""
+		# 是否拷贝翻译结果标志
+		self._copyFlag = False
 		confspec = {
 			"from": "string(default='en')",
 			"to": "string(default='zh')",
@@ -146,6 +160,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		description=_("Translate what you just heard"),
 		gesture="kb:NVDA+W")
 	def script_translate(self, gesture):
+		repeatCount = scriptHandler.getLastScriptRepeatCount()
+		if repeatCount == 1:
+			self._copyTranslationResultToClipboard()
+			return
 		self._playSound()
 		if config.conf["baiduTranslation"]["autoFromLang"]:
 			from_language = "auto"
@@ -160,6 +178,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		description=_("Reverse translate what you just heard"),
 		gesture="kb:NVDA+SHIFT+W")
 	def script_reverseTranslate(self, gesture):
+		repeatCount = scriptHandler.getLastScriptRepeatCount()
+		if repeatCount == 1:
+			self._copyTranslationResultToClipboard()
+			return
 		self._playSound(True)
 		from_language = config.conf["baiduTranslation"]["from"]
 		to_language = config.conf["baiduTranslation"]["to"]
@@ -190,6 +212,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		description=_("Translate the content in the clipboard"),
 		gesture="kb:NVDA+CONTROL+W")
 	def script_clipboardTranslation(self, gesture):
+		repeatCount = scriptHandler.getLastScriptRepeatCount()
+		if repeatCount == 1:
+			self._copyTranslationResultToClipboard()
+			return
 		self.clipboard_translation()
 
 	@scriptHandler.script(
@@ -198,6 +224,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		description=_("Reverse translate the content in the clipboard"),
 		gesture="kb:NVDA+CONTROL+SHIFT+W")
 	def script_clipboardReverseTranslation(self, gesture):
+		repeatCount = scriptHandler.getLastScriptRepeatCount()
+		if repeatCount == 1:
+			self._copyTranslationResultToClipboard()
+			return
 		self.clipboard_translation(True)
 
 	def clipboard_translation(self, reverse=False):
@@ -217,6 +247,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def _onResult(self, data):
 		if data is not None:
 			self._speak([data])
+			if self._copyFlag is True:
+				api.copyToClip(data)
+				# 拷贝完成清空缓存并重置拷贝标志
+				self._translationResult = ""
+				self._copyFlag = False
 
 	def speak(self, sequence, *args, **kwargs):
 		self._data = ""
@@ -244,3 +279,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			filename = "translate.wav"
 		sound_filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sound", filename))
 		nvwave.playWaveFile(sound_filename)
+
+	def _copyTranslationResultToClipboard(self):
+		if self._translationResult != "":
+			api.copyToClip(self._translationResult)
+			self._translationResult = ""
+		else:
+			self._copyFlag = True

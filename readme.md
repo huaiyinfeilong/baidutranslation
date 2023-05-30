@@ -6,9 +6,10 @@ An NVDA plugin that provides Baidu translation.
 
 * Translate what you just heard: NVDA+W
 * Reverse translate what you just heard: NVDA+SHIFT+W
-* Cycle through automatic translation modes (disabled, normal, reverse): NVDA+F8
 * Translate clipboard contents forward: NVDA+CONTROL+W
 * Reverse translate clipboard content: NVDA+CONTROL+SHIFT+W
+*Copy translation results to clipboard: Double click on the above gesture
+* Cycle through automatic translation modes (disabled, normal, reverse): NVDA+F8
 
 ## Feedback Contact
 
@@ -20,6 +21,10 @@ Any comments and suggestions are welcome to communicate:
 * WeChat: huaiyinfeilong
 
 ## Upgrade log
+
+### Version 1.6
+
+* Add translation result copying function. For forward translation, reverse translation, clipboard forward translation, and clipboard reverse translation, the translation results can be copied to the clipboard by double clicking the gesture.
 
 ### Version 1.5
 
