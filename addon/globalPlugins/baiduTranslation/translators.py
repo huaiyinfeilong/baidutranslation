@@ -101,4 +101,4 @@ class BaiduTranslator(object):
 			result = f"{_(failedMessage)}{_(message)}"
 		else:
 			result = "\n".join([r.get("dst") for r in data.get("trans_result")])
-		self._on_result(result)
+		self._on_result(from_language, to_language, text, result)
