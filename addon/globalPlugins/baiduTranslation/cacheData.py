@@ -8,8 +8,6 @@ class CacheDataFile(object):
 	针对翻译结果数据进行缓存，避免相同重复内容的频繁请求，加速翻译速度和优化翻译API请求数量
 	"""
 
-	# 翻译数据缓存，默认数量10000"""
-	_maxCacheCount = 10000
 	# 翻译缓存数据，字典类型，key为原文，value为译文
 	_cacheData = {}
 	# 缓存数据文件路径
@@ -27,7 +25,7 @@ class CacheDataFile(object):
 			self._cacheData = {}
 
 	# 保存缓存数据文件
-	def saveCacheDataFile(self):
+	def _saveCacheDataFile(self):
 		if not self._filename:
 			return
 		data = json.dumps(self._cacheData)
@@ -38,8 +36,19 @@ class CacheDataFile(object):
 	def addCacheItem(self, fromLanguage, toLanguage, source, target):
 		key = f"[{fromLanguage}>{toLanguage}]{source}"
 		self._cacheData[key] = target
+		self._saveCacheDataFile()
 
 	# 获取缓存项目
 	def getCacheItem(self, fromLanguage, toLanguage, source):
 		key = f"[{fromLanguage}>{toLanguage}]{source}"
 		return self._cacheData.get(key)
+
+
+	# 获取缓存条目数量
+	def getItemCount(self):
+		return len(self._cacheData)
+
+	# 清除缓存
+	def clear(self):
+		self._cacheData = {}
+		self._saveCacheDataFile()

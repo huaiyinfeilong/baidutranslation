@@ -22,6 +22,15 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 1.7.1
+
+* Add the "Clear Cache" function in the settings to clear the translation history cache data.
+* Fix some issues.
+
+### Version 1.7
+
+* Increase translation history cache to improve performance.
+
 ### Version 1.6
 
 * Add translation result copying function. For forward translation, reverse translation, clipboard forward translation, and clipboard reverse translation, the translation results can be copied to the clipboard by double clicking the gesture.
