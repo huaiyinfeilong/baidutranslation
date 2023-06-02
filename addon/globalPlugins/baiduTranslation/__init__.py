@@ -12,6 +12,7 @@ import config
 import wx
 from .translators import BaiduTranslator
 from .languages import get_language_list
+from .cacheData import CacheDataFile
 
 addonHandler.initTranslation()
 
@@ -122,6 +123,11 @@ CATEGORY_NAME = _("Baidu Translation")
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self):
 		super(globalPluginHandler.GlobalPlugin, self).__init__()
+		# 翻译历史缓存数据夹在，用以加速相同内容的翻译
+		self._cacheFile = CacheDataFile()
+		cacheFilename = os.path.abspath(os.path.join(
+			os.path.dirname(__file__), "../../../..", "baiduTranslation.cache-data"))
+		self._cacheFile.loadDataFile(cacheFilename)
 		# 翻译结果缓存，用以翻译结果拷贝，当拷贝成功后此缓存将被清空
 		self._translationResult = ""
 		# 是否拷贝翻译结果标志
@@ -152,6 +158,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._speak = None
 
 	def terminate(self):
+		# 保存翻译历史缓存数据
+		self._cacheFile.saveCacheDataFile()
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(TranslationSettingsPanel)
 
 	@scriptHandler.script(
@@ -170,7 +178,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		else:
 			from_language = config.conf["baiduTranslation"]["from"]
 		to_language = config.conf["baiduTranslation"]["to"]
-		_translator.translate(from_language, to_language, self._data, self._onResult)
+		self._translate(from_language, to_language, self._data)
 
 	# Translators: Reverse translate what you just heard
 	@scriptHandler.script(
@@ -185,7 +193,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._playSound(True)
 		from_language = config.conf["baiduTranslation"]["from"]
 		to_language = config.conf["baiduTranslation"]["to"]
-		_translator.translate(to_language, from_language, self._data, self._onResult)
+		self._translate(to_language, from_language, self._data)
 
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
@@ -242,13 +250,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			temp = from_language
 			from_language = to_language
 			to_language = temp
-		_translator.translate(from_language, to_language, text, self._onResult)
+		self._translate(to_language, from_language, self._data)
 
-	def _onResult(self, data):
-		if data is not None:
-			self._speak([data])
+	def _onResult(self, fromLanguage, toLanguage, source, target):
+		if target is not None:
+			self._speak([target])
+			self._cacheFile.addCacheItem(fromLanguage, toLanguage, source, target)
 			if self._copyFlag is True:
-				api.copyToClip(data)
+				api.copyToClip(target)
 				# 拷贝完成清空缓存并重置拷贝标志
 				self._translationResult = ""
 				self._copyFlag = False
@@ -267,7 +276,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			else:
 				from_language = config.conf["baiduTranslation"]["to"]
 				to_language = config.conf["baiduTranslation"]["from"]
-			_translator.translate(from_language, to_language, self._data, self._onResult)
+			self._translate(from_language, to_language, self._data)
 		else:
 			self._speak(sequence, *args, **kwargs)
 
@@ -286,3 +295,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self._translationResult = ""
 		else:
 			self._copyFlag = True
+
+	def _translate(self, fromLanguage, toLanguage, text):
+		if not text:
+			return
+		result = self._cacheFile.getCacheItem(fromLanguage, toLanguage, text)
+		if not result:
+			_translator.translate(fromLanguage, toLanguage, text, self._onResult)
+		else:
+			self._onResult(fromLanguage, toLanguage, text, result)
+			self._translationResult = result
