@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'baiduTranslation' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2023-05-22 17:29+0800\n"
-"PO-Revision-Date: 2023-05-22 17:31+0800\n"
+"POT-Creation-Date: 2023-06-02 17:14+0800\n"
+"PO-Revision-Date: 2023-06-02 17:16+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -22,99 +22,122 @@ msgstr ""
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
 #. to be shown on installation and add-on information found in Add-ons Manager.
-#: addon\globalPlugins\baiduTranslation\__init__.py:23
-#: addon\globalPlugins\baiduTranslation\__init__.py:109 buildVars.py:23
+#: addon\globalPlugins\baiduTranslation\__init__.py:32
+#: addon\globalPlugins\baiduTranslation\__init__.py:146 buildVars.py:23
 msgid "Baidu Translation"
 msgstr "百度翻译"
 
 #. Translators: Source language in the settings panel
-#: addon\globalPlugins\baiduTranslation\__init__.py:29
+#: addon\globalPlugins\baiduTranslation\__init__.py:38
 msgid "Source language"
 msgstr "源语言"
 
 #. Translators: Target language in the settings panel
-#: addon\globalPlugins\baiduTranslation\__init__.py:31
+#: addon\globalPlugins\baiduTranslation\__init__.py:40
 msgid "Target language"
 msgstr "目标语言"
 
 #. Translators: the label for the Auto from language checkbox
-#: addon\globalPlugins\baiduTranslation\__init__.py:45
+#: addon\globalPlugins\baiduTranslation\__init__.py:54
 msgid "Automatically identify the source language"
 msgstr "自动识别源语言"
 
 #. Translators: option disabled
-#: addon\globalPlugins\baiduTranslation\__init__.py:51
+#: addon\globalPlugins\baiduTranslation\__init__.py:60
 msgid "Disabled"
 msgstr "禁用"
 
 #. Translations: option normal
-#: addon\globalPlugins\baiduTranslation\__init__.py:53
+#: addon\globalPlugins\baiduTranslation\__init__.py:62
 msgid "Normal"
 msgstr "常规"
 
 #. Translators: option reverse
-#: addon\globalPlugins\baiduTranslation\__init__.py:55
+#: addon\globalPlugins\baiduTranslation\__init__.py:64
 msgid "Reverse"
 msgstr "反向"
 
 #. Translators: the label for of the automatic translation combobox
-#: addon\globalPlugins\baiduTranslation\__init__.py:58
+#: addon\globalPlugins\baiduTranslation\__init__.py:67
 msgid "Automatic translation"
 msgstr "自动翻译"
 
 #. Translators: The label for using share key checkbox
-#: addon\globalPlugins\baiduTranslation\__init__.py:66
+#: addon\globalPlugins\baiduTranslation\__init__.py:75
 msgid "Using share key"
 msgstr "使用共享密钥"
 
 #. Translators: The label for my APP ID textbox
-#: addon\globalPlugins\baiduTranslation\__init__.py:72
+#: addon\globalPlugins\baiduTranslation\__init__.py:82
 msgid "My APP ID"
 msgstr "我的应用ID"
 
 #. Translators: The label for my APP secret textbox
-#: addon\globalPlugins\baiduTranslation\__init__.py:79
+#: addon\globalPlugins\baiduTranslation\__init__.py:89
 msgid "My APP secret"
 msgstr "我的应用密钥"
 
-#. Translators: Translate what you just heard
-#: addon\globalPlugins\baiduTranslation\__init__.py:146
-msgid "Translate what you just heard"
-msgstr "翻译听到的内容"
+#. 清除缓存按钮
+#. Translators: Label for the clear cache button
+#: addon\globalPlugins\baiduTranslation\__init__.py:100
+msgid "Clear cache (current item count: {})"
+msgstr "清除缓存（当前项目数量：{}）"
 
-#: addon\globalPlugins\baiduTranslation\__init__.py:160
-msgid "Reverse translate what you just heard"
-msgstr "反向翻译听到的内容"
+#. Translators: Translate what you just heard, double click to copy translation results to the clipboard
+#: addon\globalPlugins\baiduTranslation\__init__.py:190
+msgid ""
+"Translate what you just heard, double click to copy translation results to "
+"the clipboard"
+msgstr "翻译您刚才听到的内容，双击将翻译结果复制到剪贴板"
+
+#: addon\globalPlugins\baiduTranslation\__init__.py:208
+msgid ""
+"Reverse translate what you just heard, double click to copy translation "
+"results to the clipboard"
+msgstr "反向翻译您刚才听到的内容，双击可将翻译结果复制到剪贴板"
 
 #. Translators: Switch automatic translation mode
-#: addon\globalPlugins\baiduTranslation\__init__.py:171
+#: addon\globalPlugins\baiduTranslation\__init__.py:223
 msgid "Switch automatic translation mode"
 msgstr "切换自动翻译模式"
 
 #. Translators: Automatic translation mode set to disabled
-#: addon\globalPlugins\baiduTranslation\__init__.py:176
+#: addon\globalPlugins\baiduTranslation\__init__.py:228
 msgid "Disable automatic translation"
 msgstr "禁用自动翻译"
 
 #. Translators: Automatic translation mode set to normal
-#: addon\globalPlugins\baiduTranslation\__init__.py:178
+#: addon\globalPlugins\baiduTranslation\__init__.py:230
 msgid "Normal automatic translation"
 msgstr "常规自动翻译"
 
 #. Translators: Automatic translation mode set to reverse
-#: addon\globalPlugins\baiduTranslation\__init__.py:180
+#: addon\globalPlugins\baiduTranslation\__init__.py:232
 msgid "Reverse automatic translation"
 msgstr "反向自动翻译"
 
-#. Translators: Translate the content in the clipboard
-#: addon\globalPlugins\baiduTranslation\__init__.py:190
-msgid "Translate the content in the clipboard"
-msgstr "翻译剪贴板中的内容"
+#. Translators: Translate the content in the clipboard, double click to copy translation results to the clipboard
+#: addon\globalPlugins\baiduTranslation\__init__.py:242
+msgid ""
+"Translate the content in the clipboard, double click to copy translation "
+"results to the clipboard"
+msgstr "翻译剪贴板中的内容，双击可将翻译结果复制到剪贴板"
 
-#. Translators: Reverse translate the content in the clipboard
-#: addon\globalPlugins\baiduTranslation\__init__.py:198
-msgid "Reverse translate the content in the clipboard"
-msgstr "反向翻译剪贴板中的内容"
+#. Translators: Reverse translate the content in the clipboard, double click to copy translation results to the clipboard
+#: addon\globalPlugins\baiduTranslation\__init__.py:254
+msgid ""
+"Reverse translate the content in the clipboard, double click to copy "
+"translation results to the clipboard"
+msgstr "反向翻译剪贴板中的内容，双击可将翻译结果复制到剪贴板"
+
+#: addon\globalPlugins\baiduTranslation\__init__.py:333
+msgid "No translation results available for replication"
+msgstr "没有可供复制的翻译结果"
+
+#. Translators: Translation failed
+#: addon\globalPlugins\baiduTranslation\exceptions.py:15
+msgid "Translation failed: "
+msgstr "翻译失败："
 
 #. Translators: Language: en
 #: addon\globalPlugins\baiduTranslation\languages.py:3
@@ -131,65 +154,70 @@ msgstr "中文（简体）"
 msgid "Chinese (traditional)"
 msgstr "中文（繁体）"
 
-#: addon\globalPlugins\baiduTranslation\translators.py:76
+#. Translators: Request timeout
+#: addon\globalPlugins\baiduTranslation\translators.py:77
 msgid "Request timeout"
 msgstr "请求超时"
 
 #. Translators: System error
-#: addon\globalPlugins\baiduTranslation\translators.py:78
+#: addon\globalPlugins\baiduTranslation\translators.py:79
 msgid "System error"
 msgstr "系统错误"
 
 #. Translators: Unauthorized user
-#: addon\globalPlugins\baiduTranslation\translators.py:80
+#: addon\globalPlugins\baiduTranslation\translators.py:81
 msgid "Unauthorized user"
 msgstr "未授权用户"
 
 #. Translators: The required parameter is empty
-#: addon\globalPlugins\baiduTranslation\translators.py:82
+#: addon\globalPlugins\baiduTranslation\translators.py:83
 msgid "The required parameter is empty"
 msgstr "必填参数为空"
 
 #. Translators: Signature error
-#: addon\globalPlugins\baiduTranslation\translators.py:84
+#: addon\globalPlugins\baiduTranslation\translators.py:85
 msgid "Signature error"
 msgstr "签名错误"
 
 #. Translators: Access frequency limited
-#: addon\globalPlugins\baiduTranslation\translators.py:86
+#: addon\globalPlugins\baiduTranslation\translators.py:87
 msgid "Access frequency limited"
 msgstr "访问频率受限"
 
 #. Translators: Insufficient account balance
-#: addon\globalPlugins\baiduTranslation\translators.py:88
+#: addon\globalPlugins\baiduTranslation\translators.py:89
 msgid "Insufficient account balance"
 msgstr "账户余额不足"
 
 #. Translators: Long query requests are frequent
-#: addon\globalPlugins\baiduTranslation\translators.py:90
+#: addon\globalPlugins\baiduTranslation\translators.py:91
 msgid "Long query requests are frequent"
 msgstr "长query请求频繁"
 
 #. Translators: Illegal client IP
-#: addon\globalPlugins\baiduTranslation\translators.py:92
+#: addon\globalPlugins\baiduTranslation\translators.py:93
 msgid "Illegal client IP"
 msgstr "客户端IP非法"
 
 #. Translators: Translation language direction not supported
-#: addon\globalPlugins\baiduTranslation\translators.py:94
+#: addon\globalPlugins\baiduTranslation\translators.py:95
 msgid "Translation language direction not supported"
 msgstr "译文语言方向不支持"
-
-#. Translators: Translation failed message
-#: addon\globalPlugins\baiduTranslation\translators.py:100
-msgid "Translation failed: "
-msgstr "翻译失败："
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 #: buildVars.py:26
 msgid "An NVDA add-on that provides baidu translation"
 msgstr "一个提供百度翻译的NVDA插件"
+
+#~ msgid "Translate what you just heard"
+#~ msgstr "翻译听到的内容"
+
+#~ msgid "Reverse translate what you just heard"
+#~ msgstr "反向翻译听到的内容"
+
+#~ msgid "Translate the content in the clipboard"
+#~ msgstr "翻译剪贴板中的内容"
 
 #~ msgid "Invalid application key"
 #~ msgstr "无效的应用密钥"

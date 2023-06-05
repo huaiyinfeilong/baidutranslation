@@ -13,6 +13,14 @@ import wx
 from .translators import BaiduTranslator
 from .languages import get_language_list
 from .cacheData import CacheDataFile
+from .exceptions import TranslationException
+from logHandler import log
+
+
+# 翻译缓存数据文件路径
+TRANSLATION_CACHE_DATA_FILENAME = 		cacheFilename = os.path.abspath(os.path.join(
+			os.path.dirname(__file__), "../../../..", "baiduTranslation.cache-data"))
+
 
 addonHandler.initTranslation()
 
@@ -87,6 +95,24 @@ class TranslationSettingsPanel(gui.SettingsPanel):
 		enabled = not self.usingShareKeyCheckBox.IsChecked()
 		self.myAppIdTextCtrl.Enable(enabled)
 		self.myAppSecretTextCtrl.Enable(enabled)
+		# 清除缓存按钮
+		# Translators: Label for the clear cache button
+		self.labelForClearCacheButton = _("Clear cache (current item count: {})")
+		cacheFile = CacheDataFile()
+		cacheFile.loadDataFile(TRANSLATION_CACHE_DATA_FILENAME)
+		label = f"{_(self.labelForClearCacheButton)}".format(cacheFile.getItemCount())
+		log.info(f"标签={label}")
+		self.clearCacheButton = helper.addItem(
+			wx.Button(self, label=label)
+		)
+		self.clearCacheButton.Bind(wx.EVT_BUTTON, self.onClearCacheButtonClick)
+
+	def onClearCacheButtonClick(self, event):
+		cacheFile = CacheDataFile()
+		cacheFile.loadDataFile(TRANSLATION_CACHE_DATA_FILENAME)
+		cacheFile.clear()
+		label = f"{_(self.labelForClearCacheButton)}".format(cacheFile.getItemCount())
+		self.clearCacheButton.SetLabel(label)
 
 
 	def onUsingShareKeyCheckBoxChange(self, event):
@@ -125,9 +151,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		super(globalPluginHandler.GlobalPlugin, self).__init__()
 		# 翻译历史缓存数据夹在，用以加速相同内容的翻译
 		self._cacheFile = CacheDataFile()
-		cacheFilename = os.path.abspath(os.path.join(
-			os.path.dirname(__file__), "../../../..", "baiduTranslation.cache-data"))
-		self._cacheFile.loadDataFile(cacheFilename)
+		self._cacheFile.loadDataFile(TRANSLATION_CACHE_DATA_FILENAME)
 		# 翻译结果缓存，用以翻译结果拷贝，当拷贝成功后此缓存将被清空
 		self._translationResult = ""
 		# 是否拷贝翻译结果标志
@@ -158,14 +182,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._speak = None
 
 	def terminate(self):
-		# 保存翻译历史缓存数据
-		self._cacheFile.saveCacheDataFile()
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(TranslationSettingsPanel)
 
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
-		# Translators: Translate what you just heard
-		description=_("Translate what you just heard"),
+		# Translators: Translate what you just heard, double click to copy translation results to the clipboard
+		description=_("Translate what you just heard, double click to copy translation results to the clipboard"),
 		gesture="kb:NVDA+W")
 	def script_translate(self, gesture):
 		repeatCount = scriptHandler.getLastScriptRepeatCount()
@@ -180,10 +202,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		to_language = config.conf["baiduTranslation"]["to"]
 		self._translate(from_language, to_language, self._data)
 
-	# Translators: Reverse translate what you just heard
+	# Translators: Reverse translate what you just heard, double click to copy translation results to the clipboard
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
-		description=_("Reverse translate what you just heard"),
+		description=_("Reverse translate what you just heard, double click to copy translation results to the clipboard"),
 		gesture="kb:NVDA+SHIFT+W")
 	def script_reverseTranslate(self, gesture):
 		repeatCount = scriptHandler.getLastScriptRepeatCount()
@@ -216,8 +238,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
-		# Translators: Translate the content in the clipboard
-		description=_("Translate the content in the clipboard"),
+		# Translators: Translate the content in the clipboard, double click to copy translation results to the clipboard
+		description=_("Translate the content in the clipboard, double click to copy translation results to the clipboard"),
 		gesture="kb:NVDA+CONTROL+W")
 	def script_clipboardTranslation(self, gesture):
 		repeatCount = scriptHandler.getLastScriptRepeatCount()
@@ -228,8 +250,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
-		# Translators: Reverse translate the content in the clipboard
-		description=_("Reverse translate the content in the clipboard"),
+		# Translators: Reverse translate the content in the clipboard, double click to copy translation results to the clipboard
+		description=_("Reverse translate the content in the clipboard, double click to copy translation results to the clipboard"),
 		gesture="kb:NVDA+CONTROL+SHIFT+W")
 	def script_clipboardReverseTranslation(self, gesture):
 		repeatCount = scriptHandler.getLastScriptRepeatCount()
@@ -253,14 +275,23 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._translate(to_language, from_language, self._data)
 
 	def _onResult(self, fromLanguage, toLanguage, source, target):
-		if target is not None:
+		if isinstance(target, TranslationException):
+			self._speak([str(target)])
+			self._copyFlag = False
+			self._translationResult = ""
+			return
+		if target:
 			self._speak([target])
 			self._cacheFile.addCacheItem(fromLanguage, toLanguage, source, target)
 			if self._copyFlag is True:
 				api.copyToClip(target)
+				self._speak([target])
 				# 拷贝完成清空缓存并重置拷贝标志
 				self._translationResult = ""
 				self._copyFlag = False
+			else:
+				self._translationResult = target
+
 
 	def speak(self, sequence, *args, **kwargs):
 		self._data = ""
@@ -290,11 +321,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		nvwave.playWaveFile(sound_filename)
 
 	def _copyTranslationResultToClipboard(self):
-		if self._translationResult != "":
-			api.copyToClip(self._translationResult)
-			self._translationResult = ""
-		else:
+		if _translator.isRunning():
 			self._copyFlag = True
+		else:
+			self._copyFlag = False
+			if self._translationResult:
+				api.copyToClip(self._translationResult)
+				self._speak([self._translationResult])
+				self._translationResult = ""
+			else:
+				self._speak([_("No translation results available for replication")])
 
 	def _translate(self, fromLanguage, toLanguage, text):
 		if not text:
@@ -304,4 +340,3 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			_translator.translate(fromLanguage, toLanguage, text, self._onResult)
 		else:
 			self._onResult(fromLanguage, toLanguage, text, result)
-			self._translationResult = result

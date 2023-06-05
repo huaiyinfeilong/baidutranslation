@@ -25,7 +25,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description": _("An NVDA add-on that provides baidu translation"),
 	# version
-	"addon_version": "1.7",
+	"addon_version": "1.7.1",
 	# Translators: Author(s)
 	"addon_author": "huaiyinfeilong <huaiyinfeilong@163.com>",
 	# URL for the add-on documentation support

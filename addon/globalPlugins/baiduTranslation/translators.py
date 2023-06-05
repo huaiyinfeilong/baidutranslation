@@ -6,6 +6,7 @@ import json
 import time
 import hashlib
 import addonHandler
+from .exceptions import TranslationException
 
 # 初始化翻译引擎
 addonHandler.initTranslation()
@@ -41,7 +42,7 @@ class BaiduTranslator(object):
 		self._on_result = on_result
 		self._thread = threading.Thread(target=self.run)
 		if self._thread:
-			self._thread.start()
+			self	._thread.start()
 
 	def run(self):
 		salt = str(int(time.time()))
@@ -96,9 +97,12 @@ class BaiduTranslator(object):
 			message = errorDescription.get(errorCode)
 			if message is None:
 				message = f"{data.get('error_msg')}, error code={errorCode}"
-			# Translators: Translation failed message
-			failedMessage = _("Translation failed: ")
-			result = f"{_(failedMessage)}{_(message)}"
+			result = TranslationException(message)
 		else:
 			result = "\n".join([r.get("dst") for r in data.get("trans_result")])
 		self._on_result(from_language, to_language, text, result)
+
+	def isRunning(self):
+		if self._thread and self._thread.is_alive():
+			return True
+		return False
