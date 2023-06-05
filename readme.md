@@ -22,6 +22,10 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 1.7.2
+
+* Fix the issue of clipboard translation not being able to translate.
+
 ### Version 1.7.1
 
 * Add the "Clear Cache" function in the settings to clear the translation history cache data.

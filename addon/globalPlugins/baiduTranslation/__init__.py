@@ -272,7 +272,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			temp = from_language
 			from_language = to_language
 			to_language = temp
-		self._translate(to_language, from_language, self._data)
+		self._translate(from_language, to_language, text)
 
 	def _onResult(self, fromLanguage, toLanguage, source, target):
 		if isinstance(target, TranslationException):
