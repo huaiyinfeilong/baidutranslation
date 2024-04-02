@@ -2,7 +2,7 @@
 
 一个提供百度翻译的NVDA插件。
 
-## 键盘快捷键：
+## 键盘快捷键
 
 * 翻译刚才听到的内容：NVDA+W
 * 反向翻译刚才听到的内容：NVDA+SHIFT+W
@@ -15,12 +15,16 @@
 
 有任何意见建议欢迎沟通：
 
-* 项目地址：https://github.com/huaiyinfeilong/baiduTranslation
+* 项目地址：[https://github.com/huaiyinfeilong/baiduTranslation](https://github.com/huaiyinfeilong/baiduTranslation)
 * 电子邮箱：huaiyinfeilong@163.com
 * QQ：354522977
 * 微信：huaiyinfeilong
 
 ## 升级日志
+
+### Version 1.7.3
+
+* 适配NVDA 2024.1版本。
 
 ### Version 1.7.2
 

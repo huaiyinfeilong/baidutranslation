@@ -2,7 +2,7 @@
 
 An NVDA plugin that provides Baidu translation.
 
-## Keyboard shortcuts:
+## Keyboard shortcuts
 
 * Translate what you just heard: NVDA+W
 * Reverse translate what you just heard: NVDA+SHIFT+W
@@ -15,12 +15,16 @@ An NVDA plugin that provides Baidu translation.
 
 Any comments and suggestions are welcome to communicate:
 
-* Project address: https://github.com/huaiyinfeilong/baiduTranslation
+* Project address: [https://github.com/huaiyinfeilong/baiduTranslation](https://github.com/huaiyinfeilong/baiduTranslation)
 * E-mail: huaiyinfeilong@163.com
 * QQ: 354522977
 * WeChat: huaiyinfeilong
 
 ## Upgrade log
+
+### Version 1.7.3
+
+* Adapt to NVDA 2024.1 version.
 
 ### Version 1.7.2
 
