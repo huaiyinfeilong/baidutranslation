@@ -27,7 +27,7 @@ addonHandler.initTranslation()
 _translator = BaiduTranslator()
 
 
-class TranslationSettingsPanel(gui.SettingsPanel):
+class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 	# Translators: Settings panel title
 	title = _("Baidu Translation")
 
