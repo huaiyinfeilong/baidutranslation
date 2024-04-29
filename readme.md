@@ -22,6 +22,11 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 1.7.4
+
+- Enhance error messages for using shared key.
+- Improve addon stability.
+
 ### Version 1.7.3
 
 * Adapt to NVDA 2024.1 version.
