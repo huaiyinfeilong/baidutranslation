@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import config
 import threading
 import urllib.request
 import json
@@ -95,6 +96,9 @@ class BaiduTranslator(object):
 				"58001": _("Translation language direction not supported")
 			}
 			message = errorDescription.get(errorCode)
+			if config.conf["baiduTranslation"]["usingShareKey"] is True and errorCode == "54004":
+				# Translators: Insufficient balance in shared account, please use personal account instead
+				message = _("Insufficient balance in shared account, please use personal account instead")
 			if message is None:
 				message = f"{data.get('error_msg')}, error code={errorCode}"
 			result = TranslationException(message)
