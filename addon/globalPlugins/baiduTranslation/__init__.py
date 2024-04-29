@@ -179,7 +179,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def __del__(self):
 		speech.speech.speak = self._speak
-		self._speak = None
+		# Do not set self._speak to None.
+		# Since many add-ons can patch speech.speak and since the order in which patching and unpatching is not
+		# well established, we may end up speech.speak restored to None.
+		# See https://github.com/cary-rowen/clipboardEnhancement/pull/14/files for an example in Clipboard
+		# Enhancement add-on.
+		# self._speak = None
 
 	def terminate(self):
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(TranslationSettingsPanel)
