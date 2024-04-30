@@ -22,10 +22,15 @@ Any comments and suggestions are welcome to communicate:
 
 ## Upgrade log
 
+### Version 1.7.5
+
+* Removed shared key support, now only individual Baidu Translation API keys are allowed.
+* Added a "Register for Baidu Translation API" button in the settings interface.
+
 ### Version 1.7.4
 
-- Enhance error messages for using shared key.
-- Improve addon stability.
+* Enhance error messages for using shared key.
+* Improve addon stability.
 
 ### Version 1.7.3
 
