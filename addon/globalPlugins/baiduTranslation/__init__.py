@@ -10,6 +10,7 @@ import os
 import gui
 import config
 import wx
+import webbrowser
 from .translators import BaiduTranslator
 from .languages import get_language_list
 from .cacheData import CacheDataFile
@@ -85,6 +86,12 @@ class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			wx.TextCtrl,
 		)
 		self.myAppSecretTextCtrl.SetValue(config.conf["baiduTranslation"]["myAppSecret"])
+		# 注册百度翻译API按钮
+		self.labelForRegistrationBaiduTranslationApi = _("Register Baidu Translation API")
+		self.registerBaiduTranslationApiButton = helper.addItem(
+			wx.Button(self, label=self.labelForRegistrationBaiduTranslationApi)
+		)
+		self.registerBaiduTranslationApiButton.Bind(wx.EVT_BUTTON, self.onRegisterBaiduTranslationApiButtonClick)
 		# 清除缓存按钮
 		# Translators: Label for the clear cache button
 		self.labelForClearCacheButton = _("Clear cache (current item count: {})")
@@ -96,6 +103,10 @@ class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			wx.Button(self, label=label)
 		)
 		self.clearCacheButton.Bind(wx.EVT_BUTTON, self.onClearCacheButtonClick)
+
+	def onRegisterBaiduTranslationApiButtonClick(self, event):
+		url = "https://fanyi-api.baidu.com/"
+		webbrowser.open(url)
 
 	def onClearCacheButtonClick(self, event):
 		cacheFile = CacheDataFile()
