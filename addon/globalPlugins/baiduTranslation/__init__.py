@@ -71,13 +71,6 @@ class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			choices=self._automatic_translation_list
 		)
 		self.automaticTranslationChoice.Select(config.conf["baiduTranslation"]["autoTrans"])
-		# Translators: The label for using share key checkbox
-		using_share_key_label = _("Using share key")
-		self.usingShareKeyCheckBox = helper.addItem(
-			wx.CheckBox(self, label=_(using_share_key_label))
-		)
-		self.usingShareKeyCheckBox.Bind(wx.EVT_CHECKBOX, self.onUsingShareKeyCheckBoxChange)
-		self.usingShareKeyCheckBox.SetValue(config.conf["baiduTranslation"]["usingShareKey"])
 		# Translators: The label for my APP ID textbox
 		my_app_id_label = _("My APP ID")
 		self.myAppIdTextCtrl = helper.addLabeledControl(
@@ -92,9 +85,6 @@ class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			wx.TextCtrl,
 		)
 		self.myAppSecretTextCtrl.SetValue(config.conf["baiduTranslation"]["myAppSecret"])
-		enabled = not self.usingShareKeyCheckBox.IsChecked()
-		self.myAppIdTextCtrl.Enable(enabled)
-		self.myAppSecretTextCtrl.Enable(enabled)
 		# 清除缓存按钮
 		# Translators: Label for the clear cache button
 		self.labelForClearCacheButton = _("Clear cache (current item count: {})")
@@ -114,12 +104,6 @@ class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		label = f"{_(self.labelForClearCacheButton)}".format(cacheFile.getItemCount())
 		self.clearCacheButton.SetLabel(label)
 
-
-	def onUsingShareKeyCheckBoxChange(self, event):
-		enabled = not self.usingShareKeyCheckBox.IsChecked()
-		self.myAppIdTextCtrl.Enable(enabled)
-		self.myAppSecretTextCtrl.Enable(enabled)
-
 	def onSave(self):
 		config.conf["baiduTranslation"]["autoFromLang"] = self.autoFromLangOption.IsChecked()
 		config.conf["baiduTranslation"]["from"] = [
@@ -133,13 +117,10 @@ class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		self.targetLanguageChoice.GetSelection()
 		]
 		config.conf["baiduTranslation"]["autoTrans"] = self.automaticTranslationChoice.GetSelection()
-		config.conf["baiduTranslation"]["usingShareKey"] = self.usingShareKeyCheckBox.IsChecked()
 		config.conf["baiduTranslation"]["myAppId"] = self.myAppIdTextCtrl.GetValue()
 		config.conf["baiduTranslation"]["myAppSecret"] = self.myAppSecretTextCtrl.GetValue()
-		appId = config.conf["baiduTranslation"]["shareAppId"] \
-		if config.conf["baiduTranslation"]["usingShareKey"] else config.conf["baiduTranslation"]["myAppId"]
-		appSecret = config.conf["baiduTranslation"]["shareAppSecret"] \
-		if config.conf["baiduTranslation"]["usingShareKey"] else config.conf["baiduTranslation"]["myAppSecret"]
+		appId = config.conf["baiduTranslation"]["myAppId"]
+		appSecret = config.conf["baiduTranslation"]["myAppSecret"]
 		_translator.initialize_translator(appId, appSecret)
 
 # Translators: Category Name
@@ -161,18 +142,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			"to": "string(default='zh')",
 			"autoFromLang": "boolean(default=True)",
 			"autoTrans": "integer(default=0)",
-			"usingShareKey": "boolean(default=True)",
-			"shareAppId": "string(default='20230423001653246')",
-			"shareAppSecret": "string(default='dyh8lxcVEZnBhJ8EiEwD')",
 			"myAppId": "string(default='')",
 			"myAppSecret": "string(default='')"
 		}
 		config.conf.spec["baiduTranslation"] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(TranslationSettingsPanel)
-		appId = config.conf["baiduTranslation"]["shareAppId"] \
-		if config.conf["baiduTranslation"]["usingShareKey"] else config.conf["baiduTranslation"]["myAppId"]
-		appSecret = config.conf["baiduTranslation"]["shareAppSecret"] \
-		if config.conf["baiduTranslation"]["usingShareKey"] else config.conf["baiduTranslation"]["myAppSecret"]
+		appId = config.conf["baiduTranslation"]["myAppId"]
+		appSecret = config.conf["baiduTranslation"]["myAppSecret"]
 		_translator.initialize_translator(appId, appSecret)
 		self._speak = speech.speech.speak
 		speech.speech.speak = self.speak
