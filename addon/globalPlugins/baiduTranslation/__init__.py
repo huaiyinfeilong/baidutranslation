@@ -15,7 +15,6 @@ from .translators import BaiduTranslator
 from .languages import get_language_list
 from .cacheData import CacheDataFile
 from .exceptions import TranslationException
-from logHandler import log
 
 
 # 翻译缓存数据文件路径
@@ -98,7 +97,6 @@ class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		cacheFile = CacheDataFile()
 		cacheFile.loadDataFile(TRANSLATION_CACHE_DATA_FILENAME)
 		label = f"{_(self.labelForClearCacheButton)}".format(cacheFile.getItemCount())
-		log.info(f"标签={label}")
 		self.clearCacheButton = helper.addItem(
 			wx.Button(self, label=label)
 		)
