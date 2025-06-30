@@ -15,12 +15,12 @@ from .translators import BaiduTranslator
 from .languages import get_language_list
 from .cacheData import CacheDataFile
 from .exceptions import TranslationException
+from speech.extensions import filter_speechSequence
+import ui
 
-
-# 翻译缓存数据文件路径
-TRANSLATION_CACHE_DATA_FILENAME = 		cacheFilename = os.path.abspath(os.path.join(
-			os.path.dirname(__file__), "../../../..", "baiduTranslation.cache-data"))
-
+# Path to the translation cache file.
+TRANSLATION_CACHE_DATA_FILENAME = os.path.abspath(os.path.join(
+	os.path.dirname(__file__), "../../../..", "baiduTranslation.cache-data"))
 
 addonHandler.initTranslation()
 
@@ -85,13 +85,11 @@ class TranslationSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			wx.TextCtrl,
 		)
 		self.myAppSecretTextCtrl.SetValue(config.conf["baiduTranslation"]["myAppSecret"])
-		# 注册百度翻译API按钮
 		self.labelForRegistrationBaiduTranslationApi = _("Register Baidu Translation API")
 		self.registerBaiduTranslationApiButton = helper.addItem(
 			wx.Button(self, label=self.labelForRegistrationBaiduTranslationApi)
 		)
 		self.registerBaiduTranslationApiButton.Bind(wx.EVT_BUTTON, self.onRegisterBaiduTranslationApiButtonClick)
-		# 清除缓存按钮
 		# Translators: Label for the clear cache button
 		self.labelForClearCacheButton = _("Clear cache (current item count: {})")
 		cacheFile = CacheDataFile()
@@ -139,12 +137,16 @@ CATEGORY_NAME = _("Baidu Translation")
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self):
 		super(globalPluginHandler.GlobalPlugin, self).__init__()
-		# 翻译历史缓存数据夹在，用以加速相同内容的翻译
+		# Stores the last text spoken by NVDA, used for manual translation.
+		self._last_spoken_text = ""
+		# A flag to prevent recursive translation of our own speech output.
+		self._is_speaking_translation_result = False
+		# Handles caching of translation results to speed up repeated translations.
 		self._cacheFile = CacheDataFile()
 		self._cacheFile.loadDataFile(TRANSLATION_CACHE_DATA_FILENAME)
-		# 翻译结果缓存，用以翻译结果拷贝，当拷贝成功后此缓存将被清空
-		self._translationResult = ""
-		# 是否拷贝翻译结果标志
+		# Caches the last successful translation result for the copy command.
+		self._last_translation_result = ""
+		# A flag to defer the copy action until after an async translation completes.
 		self._copyFlag = False
 		confspec = {
 			"from": "string(default='en')",
@@ -159,20 +161,38 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		appId = config.conf["baiduTranslation"]["myAppId"]
 		appSecret = config.conf["baiduTranslation"]["myAppSecret"]
 		_translator.initialize_translator(appId, appSecret)
-		self._speak = speech.speech.speak
-		speech.speech.speak = self.speak
-
-	def __del__(self):
-		speech.speech.speak = self._speak
-		# Do not set self._speak to None.
-		# Since many add-ons can patch speech.speak and since the order in which patching and unpatching is not
-		# well established, we may end up speech.speak restored to None.
-		# See https://github.com/cary-rowen/clipboardEnhancement/pull/14/files for an example in Clipboard
-		# Enhancement add-on.
-		# self._speak = None
+		# Register speech sequence filter.
+		filter_speechSequence.register(self.on_speech_sequence)
 
 	def terminate(self):
+		filter_speechSequence.unregister(self.on_speech_sequence)
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(TranslationSettingsPanel)
+		super(GlobalPlugin, self).terminate()
+
+	def on_speech_sequence(self, sequence):
+		"""
+		The handler registered to filter_speechSequence, responsible for automatic translation.
+		"""
+		# If this flag is set, it means we are speaking our own translation result.
+		# We must pass the sequence through unmodified and reset the flag to break the recursion loop.
+		if self._is_speaking_translation_result:
+			self._is_speaking_translation_result = False
+			return sequence
+		# Extract text to be spoken and save it for manual translation scripts.
+		text_data = "".join([item for item in sequence if isinstance(item, str) and item.strip()])
+		if text_data:
+			self._last_spoken_text = text_data
+		# Check if automatic translation is enabled.
+		auto_trans_mode = config.conf["baiduTranslation"]["autoTrans"]
+		if auto_trans_mode == 0 or not self._last_spoken_text:
+			return sequence
+		# Determine translation direction.
+		is_reverse = (auto_trans_mode == 2)
+		from_language, to_language = self._get_translation_languages(reverse=is_reverse)
+		self._translate(from_language, to_language, self._last_spoken_text)
+		# Return an empty sequence to cancel the original speech.
+		# The translated result will be spoken in the self._onResult callback.
+		return []
 
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
@@ -185,12 +205,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self._copyTranslationResultToClipboard()
 			return
 		self._playSound()
-		if config.conf["baiduTranslation"]["autoFromLang"]:
-			from_language = "auto"
-		else:
-			from_language = config.conf["baiduTranslation"]["from"]
-		to_language = config.conf["baiduTranslation"]["to"]
-		self._translate(from_language, to_language, self._data)
+		from_language, to_language = self._get_translation_languages(reverse=False)
+		self._translate(from_language, to_language, self._last_spoken_text)
 
 	# Translators: Reverse translate what you just heard, double click to copy translation results to the clipboard
 	@scriptHandler.script(
@@ -203,9 +219,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self._copyTranslationResultToClipboard()
 			return
 		self._playSound(True)
-		from_language = config.conf["baiduTranslation"]["from"]
-		to_language = config.conf["baiduTranslation"]["to"]
-		self._translate(to_language, from_language, self._data)
+		from_language, to_language = self._get_translation_languages(reverse=True)
+		self._translate(from_language, to_language, self._last_spoken_text)
 
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
@@ -223,7 +238,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		]
 		option_count = len(option_name)
 		mode = option_name[(config.conf["baiduTranslation"]["autoTrans"] + option_count + 1) % option_count]
-		self._speak([mode])
+		ui.message(mode)
 		config.conf["baiduTranslation"]["autoTrans"] = option_name.index(mode)
 
 	@scriptHandler.script(
@@ -255,72 +270,58 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if not text:
 			return
 		self._playSound(reverse)
-		from_language = "auto" if config.conf["baiduTranslation"]["autoFromLang"] \
-		else config.conf["baiduTranslation"]["from"]
-		to_language = config.conf["baiduTranslation"]["to"]
-		if reverse:
-			temp = from_language
-			from_language = to_language
-			to_language = temp
+		from_language, to_language = self._get_translation_languages(reverse=reverse)
 		self._translate(from_language, to_language, text)
 
+	def _get_translation_languages(self, reverse: bool = False) -> tuple[str, str]:
+		"""Get the source and target languages based on configuration.
+		Args:
+			reverse: If True, swaps the source and target languages for reverse translation.
+		Returns:
+			A tuple containing the (source_language, target_language).
+		"""
+		source = "auto" if config.conf["baiduTranslation"]["autoFromLang"] else config.conf["baiduTranslation"]["from"]
+		target = config.conf["baiduTranslation"]["to"]
+		return (target, source) if reverse else (source, target)
+
 	def _onResult(self, fromLanguage, toLanguage, source, target):
+		"""Callback to handle the translation result."""
+		# Set the flag before speaking the result to prevent recursion.
+		self._is_speaking_translation_result = True
 		if isinstance(target, TranslationException):
-			self._speak([str(target)])
+			ui.message(str(target))
 			self._copyFlag = False
-			self._translationResult = ""
+			self._last_translation_result = ""
 			return
 		if target:
-			self._speak([target])
+			if self._copyFlag:
+				api.copyToClip(target, notify=True)
+			else:
+				ui.message(target)
 			self._cacheFile.addCacheItem(fromLanguage, toLanguage, source, target)
-			if self._copyFlag is True:
-				api.copyToClip(target)
-				self._speak([target])
-				# 拷贝完成清空缓存并重置拷贝标志
-				self._translationResult = ""
-				self._copyFlag = False
-			else:
-				self._translationResult = target
-
-
-	def speak(self, sequence, *args, **kwargs):
-		self._data = ""
-		if isinstance(sequence, str):
-			self._data = sequence
-		elif isinstance(sequence, list):
-			self._data = "".join([item for item in sequence if isinstance(item, str)])
-		if config.conf["baiduTranslation"]["autoTrans"] != 0 and self._data:
-			if config.conf["baiduTranslation"]["autoTrans"] == 1:
-				from_language = "auto" if config.conf["baiduTranslation"]["autoFromLang"] else \
-				config.conf["baiduTranslation"]["from"]
-				to_language = config.conf["baiduTranslation"]["to"]
-			else:
-				from_language = config.conf["baiduTranslation"]["to"]
-				to_language = config.conf["baiduTranslation"]["from"]
-			self._translate(from_language, to_language, self._data)
-		else:
-			self._speak(sequence, *args, **kwargs)
+			self._last_translation_result = target
+			self._copyFlag = False
 
 	def _playSound(self, reverse_translate=False):
-		filename = ""
-		if reverse_translate is True:
-			filename = "reverseTranslate.wav"
-		else:
-			filename = "translate.wav"
+		filename = "reverseTranslate.wav" if reverse_translate else "translate.wav"
 		sound_filename = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sound", filename))
 		nvwave.playWaveFile(sound_filename)
 
 	def _copyTranslationResultToClipboard(self):
+		"""
+			Copies the last translation result to the clipboard.
+			If a translation is in progress, it sets a flag to copy the result upon completion.
+		"""
 		if _translator.isRunning():
 			self._copyFlag = True
+			ui.message(_("Will copy result when translation is complete."))
+			return
+
+		if self._last_translation_result:
+			api.copyToClip(self._last_translation_result, notify=True)
+			self._last_translation_result = ""
 		else:
-			self._copyFlag = False
-			if self._translationResult:
-				api.copyToClip(self._translationResult)
-				self._speak([self._translationResult])
-				self._translationResult = ""
-			else:
-				self._speak([_("No translation results available for replication")])
+			ui.message(_("No translation results available for replication"))
 
 	def _translate(self, fromLanguage, toLanguage, text):
 		if not text:
@@ -330,3 +331,4 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			_translator.translate(fromLanguage, toLanguage, text, self._onResult)
 		else:
 			self._onResult(fromLanguage, toLanguage, text, result)
+
