@@ -148,6 +148,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._last_translation_result = ""
 		# A flag to defer the copy action until after an async translation completes.
 		self._copyFlag = False
+		self._consecutive_failures = 0
 		confspec = {
 			"from": "string(default='en')",
 			"to": "string(default='zh')",
@@ -228,7 +229,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		description=_("Switch automatic translation mode"),
 		gesture="kb:NVDA+F8")
 	def script_switchAutomaticTranslationMode(self, gesture):
-		option_name = [
+		self._consecutive_failures = 0
+		option_names = [
 			# Translators: Automatic translation mode set to disabled
 			_("Disable automatic translation"),
 			# Translators: Automatic translation mode set to normal
@@ -236,10 +238,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			# Translators: Automatic translation mode set to reverse
 			_("Reverse automatic translation")
 		]
-		option_count = len(option_name)
-		mode = option_name[(config.conf["baiduTranslation"]["autoTrans"] + option_count + 1) % option_count]
-		ui.message(mode)
-		config.conf["baiduTranslation"]["autoTrans"] = option_name.index(mode)
+		current_mode_index = config.conf["baiduTranslation"]["autoTrans"]
+		new_mode_index = (current_mode_index + 1) % len(option_names)
+		config.conf["baiduTranslation"]["autoTrans"] = new_mode_index
+		ui.message(option_names[new_mode_index])
 
 	@scriptHandler.script(
 		category=CATEGORY_NAME,
@@ -266,8 +268,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.clipboard_translation(True)
 
 	def clipboard_translation(self, reverse=False):
-		text = api.getClipData()
+		try:
+			text = api.getClipData()
+		except OSError:
+			# This error can occur if the clipboard is empty or contains non-text data.
+			text = None
 		if not text:
+			ui.message(_("No text in clipboard to translate."))
 			return
 		self._playSound(reverse)
 		from_language, to_language = self._get_translation_languages(reverse=reverse)
@@ -289,11 +296,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		# Set the flag before speaking the result to prevent recursion.
 		self._is_speaking_translation_result = True
 		if isinstance(target, TranslationException):
-			ui.message(str(target))
+			self._consecutive_failures += 1
+			if config.conf["baiduTranslation"]["autoTrans"] != 0 and self._consecutive_failures >= 3:
+				config.conf["baiduTranslation"]["autoTrans"] = 0
+				self._consecutive_failures = 0
+				# Translators: Message announced when auto-translation is disabled due to repeated failures.
+				ui.message(_("Auto-translation disabled due to repeated failures."))
+			else:
+				ui.message(str(target))
 			self._copyFlag = False
 			self._last_translation_result = ""
 			return
 		if target:
+			self._consecutive_failures = 0
 			if self._copyFlag:
 				api.copyToClip(target, notify=True)
 			else:
