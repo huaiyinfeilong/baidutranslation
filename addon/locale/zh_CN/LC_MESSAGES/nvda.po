@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'baiduTranslation' '1.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2025-07-01 23:10+0800\n"
-"PO-Revision-Date: 2025-07-01 23:28+0800\n"
+"POT-Creation-Date: 2025-07-04 11:33+0800\n"
+"PO-Revision-Date: 2025-07-04 11:35+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -166,54 +166,64 @@ msgid "Chinese (traditional)"
 msgstr "中文（繁体）"
 
 #. Translators: Request timeout
-#: addon\globalPlugins\baiduTranslation\translators.py:78
+#: addon\globalPlugins\baiduTranslation\translators.py:79
 msgid "Request timeout"
 msgstr "请求超时"
 
 #. Translators: System error
-#: addon\globalPlugins\baiduTranslation\translators.py:80
+#: addon\globalPlugins\baiduTranslation\translators.py:81
 msgid "System error"
 msgstr "系统错误"
 
 #. Translators: Unauthorized user
-#: addon\globalPlugins\baiduTranslation\translators.py:82
+#: addon\globalPlugins\baiduTranslation\translators.py:83
 msgid "Unauthorized user"
 msgstr "未授权用户，请检查应用ID或秘钥是否已填写正确"
 
 #. Translators: The required parameter is empty
-#: addon\globalPlugins\baiduTranslation\translators.py:84
+#: addon\globalPlugins\baiduTranslation\translators.py:85
 msgid "The required parameter is empty"
 msgstr "必填参数为空"
 
 #. Translators: Signature error
-#: addon\globalPlugins\baiduTranslation\translators.py:86
+#: addon\globalPlugins\baiduTranslation\translators.py:87
 msgid "Signature error"
 msgstr "签名错误，请检查应用ID或秘钥是否已填写正确"
 
 #. Translators: Access frequency limited
-#: addon\globalPlugins\baiduTranslation\translators.py:88
+#: addon\globalPlugins\baiduTranslation\translators.py:89
 msgid "Access frequency limited"
 msgstr "访问频率受限，请稍后再试"
 
 #. Translators: Insufficient account balance
-#: addon\globalPlugins\baiduTranslation\translators.py:90
+#: addon\globalPlugins\baiduTranslation\translators.py:91
 msgid "Insufficient account balance"
 msgstr "账户余额不足，请更换一个应用ID或前往百度充值"
 
 #. Translators: Long query requests are frequent
-#: addon\globalPlugins\baiduTranslation\translators.py:92
+#: addon\globalPlugins\baiduTranslation\translators.py:93
 msgid "Long query requests are frequent"
 msgstr "长query请求频繁"
 
 #. Translators: Illegal client IP
-#: addon\globalPlugins\baiduTranslation\translators.py:94
+#: addon\globalPlugins\baiduTranslation\translators.py:95
 msgid "Illegal client IP"
 msgstr "客户端IP非法"
 
 #. Translators: Translation language direction not supported
-#: addon\globalPlugins\baiduTranslation\translators.py:96
+#: addon\globalPlugins\baiduTranslation\translators.py:97
 msgid "Translation language direction not supported"
 msgstr "译文语言方向不支持"
+
+#. Translators: Error message when network connection fails.
+#: addon\globalPlugins\baiduTranslation\translators.py:107
+msgid "Network connection failed"
+msgstr "网络连接失败"
+
+#. Translators: Generic error message for unexpected issues.
+#: addon\globalPlugins\baiduTranslation\translators.py:110
+msgid "An unexpected error occurred"
+msgstr "发生意外错误"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
