@@ -68,39 +68,46 @@ class BaiduTranslator(object):
 		request = urllib.request.Request(url=url, data=payload, headers=headers, method="POST")
 		proxy = urllib.request.ProxyHandler({})
 		opener = urllib.request.build_opener(proxy)
-		response = opener.open(request)
-		data = json.loads(response.read().decode("utf-8"))
-		if data.get("error_code"):
-			errorCode = data.get("error_code")
-			message = ""
-			errorDescription = {
-				# Translators: Request timeout
-				"52001": _("Request timeout"),
-				# Translators: System error
-				"52002": _("System error"),
-				# Translators: Unauthorized user
-				"52003": _("Unauthorized user"),
-				# Translators: The required parameter is empty
-				"54000": _("The required parameter is empty"),
-				# Translators: Signature error
-				"54001": _("Signature error"),
-				# Translators: Access frequency limited
-				"54003": _("Access frequency limited"),
-				# Translators: Insufficient account balance
-				"54004": _("Insufficient account balance"),
-				# Translators: Long query requests are frequent
-				"54005": _("Long query requests are frequent"),
-				# Translators: Illegal client IP
-				"58000": _("Illegal client IP"),
-				# Translators: Translation language direction not supported
-				"58001": _("Translation language direction not supported")
-			}
-			message = errorDescription.get(errorCode)
-			if message is None:
-				message = f"{data.get('error_msg')}, error code={errorCode}"
-			result = TranslationException(message)
-		else:
-			result = "\n".join([r.get("dst") for r in data.get("trans_result")])
+		try:
+			response = opener.open(request, timeout=15)
+			data = json.loads(response.read().decode("utf-8"))
+			if data.get("error_code"):
+				errorCode = data.get("error_code")
+				message = ""
+				errorDescription = {
+					# Translators: Request timeout
+					"52001": _("Request timeout"),
+					# Translators: System error
+					"52002": _("System error"),
+					# Translators: Unauthorized user
+					"52003": _("Unauthorized user"),
+					# Translators: The required parameter is empty
+					"54000": _("The required parameter is empty"),
+					# Translators: Signature error
+					"54001": _("Signature error"),
+					# Translators: Access frequency limited
+					"54003": _("Access frequency limited"),
+					# Translators: Insufficient account balance
+					"54004": _("Insufficient account balance"),
+					# Translators: Long query requests are frequent
+					"54005": _("Long query requests are frequent"),
+					# Translators: Illegal client IP
+					"58000": _("Illegal client IP"),
+					# Translators: Translation language direction not supported
+					"58001": _("Translation language direction not supported")
+				}
+				message = errorDescription.get(errorCode)
+				if message is None:
+					message = f"{data.get('error_msg')}, error code={errorCode}"
+				result = TranslationException(message)
+			else:
+				result = "\n".join([r.get("dst") for r in data.get("trans_result")])
+		except urllib.error.URLError:
+			# Translators: Error message when network connection fails.
+			result = TranslationException(_("Network connection failed"))
+		except Exception:
+			# Translators: Generic error message for unexpected issues.
+			result = TranslationException(_("An unexpected error occurred"))
 		self._on_result(from_language, to_language, text, result)
 
 	def isRunning(self):
