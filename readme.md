@@ -21,6 +21,11 @@ Any comments and suggestions are welcome to communicate:
 * WeChat: huaiyinfeilong
 
 ## Upgrade log
+### Version 1.7.6
+* Compatible with NVDA 2025.1.
+* More friendly Chinese error messages.
+* If the translation attempt fails for 3 consecutive times, automatic translation will be disabled.
+* Code refactoring.
 
 ### Version 1.7.5
 
